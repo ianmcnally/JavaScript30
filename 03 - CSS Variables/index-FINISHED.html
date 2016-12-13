@@ -22,15 +22,15 @@
 
   <style>
     :root {
-      --base: #ffc600;
-      --spacing: 10px;
+      --spacing: 20px;
       --blur: 10px;
+      --base: pink;
     }
 
     img {
-      padding: var(--spacing);
-      background: var(--base);
+      background-color: var(--base);
       filter: blur(var(--blur));
+      padding: var(--spacing);
     }
 
     .hl {
@@ -63,17 +63,16 @@
   </style>
 
   <script>
-    const inputs = document.querySelectorAll('.controls input');
+    const updateStyleVariableToValueAndUnit = (variableName, value, unit = '') =>
+      document.documentElement.style.setProperty(`--${variableName}`, `${value}${unit}`)
 
-    function handleUpdate() {
-      const suffix = this.dataset.sizing || '';
-      document.documentElement.style.setProperty(`--${this.name}`, this.value + suffix);
+    const handleControlChange = () => {
+      const { name, dataset: { sizing }, value } = event.target
+      updateStyleVariableToValueAndUnit(name, value, sizing)
     }
 
-    inputs.forEach(input => input.addEventListener('change', handleUpdate));
-    inputs.forEach(input => input.addEventListener('mousemove', handleUpdate));
+    document.querySelector('.controls').addEventListener('change', handleControlChange)
   </script>
-
 
 </body>
 </html>
