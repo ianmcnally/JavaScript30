@@ -58,24 +58,42 @@
   <audio data-key="76" src="sounds/tink.wav"></audio>
 
 <script>
-  function removeTransition(e) {
-    if (e.propertyName !== 'transform') return;
-    e.target.classList.remove('playing');
-  }
+const PLAYING_CLASS = 'playing'
 
-  function playSound(e) {
-    const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`);
-    const key = document.querySelector(`div[data-key="${e.keyCode}"]`);
-    if (!audio) return;
+const getAudioElementForKeyCode = keyCode =>
+  document.querySelector(`audio[data-key="${keyCode}"`)
 
-    key.classList.add('playing');
-    audio.currentTime = 0;
-    audio.play();
-  }
+const getKeyElementForKeyCode = keyCode =>
+  document.querySelector(`.key[data-key="${keyCode}"`)
 
-  const keys = Array.from(document.querySelectorAll('.key'));
-  keys.forEach(key => key.addEventListener('transitionend', removeTransition));
-  window.addEventListener('keydown', playSound);
+const removeKeyHighlightOnAnimationEndForElement = element =>
+  element.addEventListener(
+    'transitionend',
+    () => element.classList.remove(PLAYING_CLASS),
+    { once: true }
+  )
+
+const highlightPlayedKey = (keyCode) => {
+  const keyElement = getKeyElementForKeyCode(keyCode)
+  if (!keyElement) return
+  keyElement.classList.add(PLAYING_CLASS)
+  removeKeyHighlightOnAnimationEndForElement(keyElement)
+}
+
+const playSoundForAudioElementByKey = keyCode => {
+  const audioElement = getAudioElementForKeyCode(keyCode)
+  if (!audioElement) return
+  audioElement.currentTime = 0
+  audioElement.play()
+  highlightPlayedKey(keyCode)
+}
+
+const handleKeyDown = (event) => {
+  const { keyCode } = event
+  playSoundForAudioElementByKey(keyCode)
+}
+
+window.addEventListener('keydown', handleKeyDown)
 </script>
 
 
