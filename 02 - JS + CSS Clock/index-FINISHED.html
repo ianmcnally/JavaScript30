@@ -18,8 +18,7 @@
 
   <style>
     html {
-      background:#018DED url(http://unsplash.it/1500/1000?image=881&blur=50);
-      background-size:cover;
+      background-color: #018DED;
       font-family:'helvetica neue';
       text-align: center;
       font-size: 10px;
@@ -61,38 +60,77 @@
       background:black;
       position: absolute;
       top:50%;
-      transform-origin: 100%;
       transform: rotate(90deg);
-      transition: all 0.05s;
-      transition-timing-function: cubic-bezier(0.1, 2.7, 0.58, 1);
+      transform-origin: right;
+      transition-property: transform;
+      transition-duration: 0.05s;
+      transition-timing-function: cubic-bezier(0.42, 0, 0.23, 1.79);
     }
-</style>
 
-<script>
-  const secondHand = document.querySelector('.second-hand');
-  const minsHand = document.querySelector('.min-hand');
-  const hourHand = document.querySelector('.hour-hand');
+  </style>
 
-  function setDate() {
-    const now = new Date();
+  <script>
+    const ONE_MINUTE_IN_SECONDS = 60
+    const MINUTES_PER_HOUR = 60
+    const HOURS_PER_DAY = 12
+    const MAXIMUM_ROTATION_IN_DEGREES = 360
+    const HAND_OFFSET_IN_DEGREES = 90
 
-    const seconds = now.getSeconds();
-    const secondsDegrees = ((seconds / 60) * 360) + 90;
-    secondHand.style.transform = `rotate(${secondsDegrees}deg)`;
+    const nodes = {
+      hourHand: document.querySelector('.hour-hand'),
+      secondsHand: document.querySelector('.second-hand'),
+      minuteHand: document.querySelector('.min-hand')
+    }
 
-    const mins = now.getMinutes();
-    const minsDegrees = ((mins / 60) * 360) + 90;
-    minsHand.style.transform = `rotate(${minsDegrees}deg)`;
+    const secondsToDegrees = seconds => ((seconds / ONE_MINUTE_IN_SECONDS) * MAXIMUM_ROTATION_IN_DEGREES) + HAND_OFFSET_IN_DEGREES
 
-    const hour = now.getHours();
-    const hourDegrees = ((mins / 12) * 360) + 90;
-    hourHand.style.transform = `rotate(${hourDegrees}deg)`;
-  }
+    const minutesToDegrees = minutes => ((minutes / MINUTES_PER_HOUR) * MAXIMUM_ROTATION_IN_DEGREES) + HAND_OFFSET_IN_DEGREES
 
-  setInterval(setDate, 1000);
+    const hoursToDegrees = hours => ((hours / HOURS_PER_DAY) * MAXIMUM_ROTATION_IN_DEGREES) + HAND_OFFSET_IN_DEGREES
 
-  setDate();
+    const buildRotationForDegrees = degrees => `rotate(${degrees}deg)`
 
-</script>
+    const rotateElementToDegrees = (element, degrees) => {
+      element.style.transform = buildRotationForDegrees(degrees)
+    }
+
+    const updateHoursHandToHours = (() => {
+      let currentHour
+
+      return hour => {
+        if (hour === currentHour ) return
+
+        currentHour = hour
+        const degrees = hoursToDegrees(hour)
+        rotateElementToDegrees(nodes.hourHand, degrees)
+      }
+    })()
+
+    const updateMinutesHandToMinutes = (() => {
+      let currentMinute
+
+      return minute => {
+        if (minute === currentMinute) return
+
+        currentMinute = minute
+        const degrees = minutesToDegrees(minute)
+        rotateElementToDegrees(nodes.minuteHand, degrees)
+      }
+    })()
+
+    const updateSecondsHandToSeconds = seconds => {
+      const degrees = secondsToDegrees(seconds)
+      rotateElementToDegrees(nodes.secondsHand, degrees)
+    }
+
+    const updateClock = () => {
+      const date = new Date()
+      updateHoursHandToHours(date.getHours())
+      updateMinutesHandToMinutes(date.getMinutes())
+      updateSecondsHandToSeconds(date.getSeconds())
+    }
+
+    setInterval(updateClock, 1000)
+  </script>
 </body>
 </html>
